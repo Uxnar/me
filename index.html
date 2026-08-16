@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uxnar — 个人主页</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23c45d3e'/%3E%3Cstop offset='100%25' stop-color='%23e8945a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='23.5' text-anchor='middle' font-family='Georgia,serif' font-size='21' font-weight='bold' font-style='italic' fill='white'%3EU%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+  }
+
+  [data-theme="day"] {
+    --bg: #faf7f2; --bg-secondary: #f0ebe3;
+    --text: #1a1714; --text-muted: #8a8279; --text-light: #b0a898;
+    --accent: #c45d3e; --accent-light: #d4735a;
+    --accent-glow: rgba(196, 93, 62, 0.12);
+    --border: rgba(26, 23, 20, 0.08);
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --card-border: rgba(26, 23, 20, 0.06);
+    --shadow: 0 1px 3px rgba(26,23,20,0.04), 0 8px 32px rgba(26,23,20,0.06);
+    --grain-opacity: 0.025;
+    --orb-1: rgba(196, 93, 62, 0.08); --orb-2: rgba(120, 160, 140, 0.07); --orb-3: rgba(180, 150, 90, 0.06);
+    --link-color: #c45d3e; --link-hover: #a04530;
+    --tag-bg: rgba(196, 93, 62, 0.08); --tag-text: #c45d3e;
+    --toggle-bg: #1a1714; --toggle-icon: #faf7f2;
+    --divider: rgba(26, 23, 20, 0.06);
+    --countdown-bg: #fff; --countdown-border: rgba(196, 93, 62, 0.15);
+    --timeline-line: rgba(26, 23, 20, 0.08); --timeline-dot: #c45d3e;
+    --quote-bg: rgba(196, 93, 62, 0.04); --quote-border: rgba(196, 93, 62, 0.2);
+  }
+
+  [data-theme="night"] {
+    --bg: #0c0b0f; --bg-secondary: #141318;
+    --text: #e8e4de; --text-muted: #6b6560; --text-light: #3d3a36;
+    --accent: #e8945a; --accent-light: #f0a870;
+    --accent-glow: rgba(232, 148, 90, 0.1);
+    --border: rgba(232, 228, 222, 0.06);
+    --card-bg: rgba(255, 255, 255, 0.025);
+    --card-border: rgba(232, 228, 222, 0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.3);
+    --grain-opacity: 0.035;
+    --orb-1: rgba(232, 148, 90, 0.06); --orb-2: rgba(100, 130, 200, 0.05); --orb-3: rgba(160, 100, 180, 0.04);
+    --link-color: #e8945a; --link-hover: #f0b080;
+    --tag-bg: rgba(232, 148, 90, 0.1); --tag-text: #e8945a;
+    --toggle-bg: #e8e4de; --toggle-icon: #0c0b0f;
+    --divider: rgba(232, 228, 222, 0.04);
+    --countdown-bg: rgba(255,255,255,0.02); --countdown-border: rgba(232, 148, 90, 0.12);
+    --timeline-line: rgba(232, 228, 222, 0.06); --timeline-dot: #e8945a;
+    --quote-bg: rgba(232, 148, 90, 0.04); --quote-border: rgba(232, 148, 90, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg); color: var(--text);
+    min-height: 100vh;
+    transition: background var(--transition), color var(--transition);
+    overflow-x: hidden; position: relative; line-height: 1.7;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 200px; opacity: var(--grain-opacity);
+    pointer-events: none; z-index: 9999; transition: opacity var(--transition);
+  }
+
+  .orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(80px); transition: background var(--transition); animation: float 20s ease-in-out infinite; }
+  .orb-1 { width: 500px; height: 500px; background: var(--orb-1); top: -10%; left: -5%; }
+  .orb-2 { width: 400px; height: 400px; background: var(--orb-2); top: 40%; right: -10%; animation-delay: -7s; animation-duration: 25s; }
+  .orb-3 { width: 350px; height: 350px; background: var(--orb-3); bottom: -5%; left: 30%; animation-delay: -14s; animation-duration: 22s; }
+  @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-40px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)} }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 660px; margin: 0 auto; padding: 80px 32px 60px;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  /* 主题切换 */
+  .theme-toggle {
+    position: fixed; top: 28px; right: 28px; z-index: 100;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--card-bg);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; box-shadow: var(--shadow);
+  }
+  .theme-toggle:hover { transform: scale(1.08); border-color: var(--accent); }
+  .theme-toggle svg { width: 18px; height: 18px; fill: var(--toggle-bg); }
+  .theme-toggle .icon-moon, [data-theme="night"] .theme-toggle .icon-sun { display: none; }
+  [data-theme="night"] .theme-toggle .icon-moon { display: block; }
+
+  /* 头部 */
+  .header { margin-bottom: 48px; opacity: 0; animation: fadeUp 0.8s ease forwards; }
+  .greeting {
+    font-size: 12px; font-weight: 400; letter-spacing: 0.15em;
+    color: var(--text-muted); margin-bottom: 16px;
+    transition: color var(--transition); display: flex; align-items: center; gap: 10px;
+  }
+  .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+    transition: background var(--transition); animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  .name {
+    font-size: clamp(56px, 10vw, 96px); font-weight: 800; font-style: italic;
+    line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 20px;
+    transition: color var(--transition);
+    background: linear-gradient(135deg, var(--text) 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .tagline { font-size: 17px; color: var(--text-muted); line-height: 1.6; transition: color var(--transition); }
+
+  .divider {
+    width: 48px; height: 1.5px; background: var(--accent);
+    margin: 36px 0; opacity: 0.4; transition: background var(--transition);
+  }
+
+  /* 区块 */
+  .section { margin-bottom: 32px; opacity: 0; animation: fadeUp 0.8s ease forwards; }
+  .section:nth-child(2){animation-delay:0.1s} .section:nth-child(3){animation-delay:0.2s}
+  .section:nth-child(4){animation-delay:0.3s} .section:nth-child(5){animation-delay:0.4s}
+  .section:nth-child(6){animation-delay:0.5s} .section:nth-child(7){animation-delay:0.6s}
+  .section:nth-child(8){animation-delay:0.7s} .section:nth-child(9){animation-delay:0.8s}
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-label {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 400;
+    letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 12px;
+    transition: color var(--transition);
+  }
+
+  /* 卡片 */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 24px 28px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--shadow); transition: all 0.4s ease;
+  }
+  .card:hover { border-color: var(--accent); box-shadow: var(--shadow), 0 0 0 1px var(--accent-glow); transform: translateY(-2px); }
+
+  /* 运行天数 */
+  .uptime-card {
+    display: flex; align-items: center; gap: 20px; padding: 28px 32px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 16px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--shadow); transition: all 0.4s ease;
+  }
+  .uptime-card:hover { border-color: var(--accent); box-shadow: var(--shadow), 0 0 0 1px var(--accent-glow); transform: translateY(-2px); }
+  .uptime-badge {
+    width: 72px; height: 72px; border-radius: 16px; background: var(--tag-bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background var(--transition);
+  }
+  .uptime-num { font-size: 26px; font-weight: 800; color: var(--accent); line-height: 1; transition: color var(--transition); }
+  .uptime-unit { font-size: 10px; color: var(--accent-light); margin-top: 2px; letter-spacing: 0.06em; transition: color var(--transition); }
+  .uptime-info { flex: 1; }
+  .uptime-title { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 4px; transition: color var(--transition); }
+  .uptime-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; transition: color var(--transition); }
+  .uptime-pulse { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); margin-top: 8px; transition: color var(--transition); }
+  .uptime-pulse .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 1.5s ease-in-out infinite; }
+
+  /* 信息行 */
+  .info-row { display: flex; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--divider); transition: border-color var(--transition); }
+  .info-row:last-child { border-bottom: none; }
+  .info-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--tag-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background var(--transition); }
+  .info-icon svg { width: 16px; height: 16px; fill: var(--accent); transition: fill var(--transition); }
+  .info-content { flex: 1; min-width: 0; }
+  .info-label { font-size: 10px; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 1px; transition: color var(--transition); }
+  .info-value { font-size: 14px; color: var(--text); transition: color var(--transition); }
+  .info-value a { color: var(--link-color); text-decoration: none; border-bottom: 1px solid transparent; transition: all 0.2s ease; }
+  .info-value a:hover { border-bottom-color: var(--link-color); color: var(--link-hover); }
+
+  /* 每月16号 */
+  .sixteen-card { position: relative; overflow: hidden; padding: 28px 32px; }
+  .sixteen-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-light), transparent); transition: background var(--transition); }
+  .sixteen-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; gap: 16px; }
+  .sixteen-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); transition: color var(--transition); }
+  .sixteen-title span { color: var(--accent); transition: color var(--transition); }
+  .sixteen-badge {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+    padding: 5px 12px; border-radius: 20px;
+    background: var(--accent); color: #fff; white-space: nowrap; flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .sixteen-desc { font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; transition: color var(--transition); }
+  .today-banner {
+    background: var(--accent); color: #fff; border-radius: 12px;
+    padding: 16px 20px; text-align: center; font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em; margin-bottom: 16px;
+  }
+  .today-banner small { display: block; font-weight: 400; font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+  /* 优惠码区域 */
+  .promo-section { margin-top: 20px; }
+  .promo-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+    color: var(--text-muted); margin-bottom: 8px; transition: color var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .promo-label .promo-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; transition: background var(--transition); }
+  .promo-code-box {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--tag-bg); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 16px 20px; gap: 12px;
+    transition: all var(--transition);
+  }
+  .promo-code-box:hover { border-color: var(--accent); }
+  .promo-code-value {
+    font-family: var(--font-mono); font-size: 22px; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--accent); user-select: all;
+    transition: color var(--transition);
+  }
+  .promo-code-hint {
+    font-size: 12px; color: var(--text-muted); transition: color var(--transition);
+    white-space: nowrap;
+  }
+  .promo-copy-btn {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent); cursor: pointer;
+    transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0;
+  }
+  .promo-copy-btn:hover { background: var(--accent); color: #fff; }
+  .promo-loading {
+    font-size: 13px; color: var(--text-muted); font-style: italic;
+    transition: color var(--transition);
+  }
+  .promo-error {
+    font-size: 13px; color: var(--text-light); transition: color var(--transition);
+  }
+
+  /* 倒计时 */
+  .countdown { display: flex; gap: 12px; margin-bottom: 16px; }
+  .countdown-unit {
+    flex: 1; text-align: center; background: var(--countdown-bg);
+    border: 1px solid var(--countdown-border); border-radius: 12px; padding: 14px 8px;
+    transition: all var(--transition);
+  }
+  .countdown-num { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1; transition: color var(--transition); }
+  .countdown-label { font-size: 11px; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.08em; transition: color var(--transition); }
+  .time-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); transition: color var(--transition); }
+
+  /* 一言 */
+  .quote-card {
+    border-left: 3px solid var(--quote-border); background: var(--quote-bg);
+    padding: 20px 24px; border-radius: 0 12px 12px 0; transition: all var(--transition);
+  }
+  .quote-card:hover { border-left-color: var(--accent); transform: none; }
+  .quote-text { font-size: 15px; line-height: 1.8; color: var(--text); transition: color var(--transition); }
+  .quote-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .quote-source { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; transition: color var(--transition); }
+  .quote-refresh {
+    font-size: 12px; color: var(--text-muted); background: none; border: none;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    transition: all 0.2s ease; font-family: var(--font-sans);
+  }
+  .quote-refresh:hover { color: var(--accent); background: var(--tag-bg); }
+
+  /* 时间线 */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 1px; background: var(--timeline-line); transition: background var(--transition); }
+  .timeline-item { position: relative; padding: 10px 0 10px 16px; }
+  .timeline-item::before { content: ''; position: absolute; left: -23px; top: 18px; width: 9px; height: 9px; border-radius: 50%; background: var(--timeline-dot); transition: background var(--transition); }
+  .timeline-item:first-child::before { box-shadow: 0 0 0 4px var(--accent-glow); }
+  .timeline-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 2px; transition: color var(--transition); }
+  .timeline-text { font-size: 14px; color: var(--text); transition: color var(--transition); }
+
+  /* 链接 */
+  .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .link-item {
+    display: flex; align-items: center; gap: 10px; padding: 13px 16px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 12px; text-decoration: none; color: var(--text);
+    font-size: 13px; font-weight: 500; transition: all 0.3s ease; box-shadow: var(--shadow);
+  }
+  .link-item:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow), 0 0 0 1px var(--accent-glow); }
+  .link-item .link-icon { font-size: 18px; line-height: 1; }
+  .link-item .link-name { transition: color 0.2s ease; }
+  .link-item:hover .link-name { color: var(--accent); }
+
+  /* 加入卡片 */
+  .invite-card { position: relative; overflow: hidden; }
+  .invite-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), transparent); transition: background var(--transition); }
+  .invite-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: var(--text); transition: color var(--transition); }
+  .invite-desc { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; transition: color var(--transition); }
+  .invite-btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px;
+    background: var(--accent); color: #fff; font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 10px;
+    transition: all 0.3s ease; border: none; cursor: pointer;
+  }
+  .invite-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--accent-glow); }
+  .invite-btn svg { width: 14px; height: 14px; fill: #fff; transition: transform 0.3s ease; }
+  .invite-btn:hover svg { transform: translateX(3px); }
+
+  /* 底部 */
+  .footer { margin-top: auto; padding-top: 56px; text-align: center; opacity: 0; animation: fadeUp 0.8s ease 0.7s forwards; }
+  .footer-line { width: 32px; height: 1px; background: var(--divider); margin: 0 auto 14px; transition: background var(--transition); }
+  .footer p { font-size: 11px; color: var(--text-light); letter-spacing: 0.1em; transition: color var(--transition); }
+  .footer a { color: var(--text-muted); text-decoration: none; transition: color 0.2s ease; }
+  .footer a:hover { color: var(--accent); }
+
+  @media (max-width: 520px) {
+    .container { padding: 60px 18px 36px; }
+    .card { padding: 20px; }
+    .sixteen-card { padding: 20px; }
+    .uptime-card { padding: 20px; gap: 14px; }
+    .uptime-badge { width: 60px; height: 60px; border-radius: 12px; }
+    .uptime-num { font-size: 22px; }
+    .theme-toggle { top: 14px; right: 14px; width: 40px; height: 40px; }
+    .countdown { gap: 8px; }
+    .countdown-unit { padding: 10px 4px; }
+    .countdown-num { font-size: 22px; }
+    .link-grid { grid-template-columns: 1fr; }
+    .sixteen-header { flex-direction: column; }
+    .promo-code-box { flex-wrap: wrap; }
+    .promo-code-value { font-size: 18px; }
+  }
+</style>
+</head>
+<body data-theme="day">
+
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题">
+  <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-4a1 1 0 011 1v1a1 1 0 01-2 0V4a1 1 0 011-1zm0 16a1 1 0 011 1v1a1 1 0 01-2 0v-1a1 1 0 011-1zm9-9a1 1 0 01-1 1h-1a1 1 0 010-2h1a1 1 0 011 1zM5 12a1 1 0 01-1 1H3a1 1 0 010-2h1a1 1 0 011 1zm13.07-6.36a1 1 0 010 1.41l-.71.71a1 1 0 01-1.41-1.41l.71-.71a1 1 0 011.41 0zM7.05 17.66a1 1 0 010 1.41l-.71.71a1 1 0 01-1.41-1.41l.71-.71a1 1 0 011.41 0zM4.93 5.64a1 1 0 011.41 0l.71.71A1 1 0 015.64 7.76l-.71-.71a1 1 0 010-1.41zm12.02 12.73a1 1 0 011.41 0l.71.71a1 1 0 01-1.41 1.41l-.71-.71a1 1 0 010-1.41z"/></svg>
+  <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21.53 15.93c-.16-.27-.61-.69-1.73-.49a8.46 8.46 0 01-1.88.13 8.409 8.409 0 01-5.91-2.82 8.068 8.068 0 01-1.44-8.66c.44-1.01.13-1.54-.09-1.76s-.77-.55-1.83-.11a10.318 10.318 0 00-6.32 10.21 10.475 10.475 0 007.04 8.99 10 10 0 003.13.53 10.54 10.54 0 006.93-2.6c.73-.65.43-1.17.18-1.35z"/></svg>
+</button>
+
+<div class="container">
+
+  <header class="header">
+    <div class="greeting"><span class="dot"></span>欢迎来到我的个人主页</div>
+    <h1 class="name">Uxnar</h1>
+    <p class="tagline">在互联网上拥有一个安静的角落，记录一些东西。</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- 一言 -->
+  <div class="section">
+    <div class="section-label">// 一言</div>
+    <div class="card quote-card">
+      <p class="quote-text" id="hitokotoText">加载中...</p>
+      <div class="quote-meta">
+        <span class="quote-source" id="hitokotoSource"></span>
+        <button class="quote-refresh" onclick="fetchHitokoto()" title="换一条">↻ 换一条</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 16号专属：免费域名发放 + 优惠码 ===== -->
+  <div class="section" data-show="16th">
+    <div class="section-label">// 每月 16 号</div>
+    <div class="card sixteen-card">
+      <div class="sixteen-header">
+        <div class="sixteen-title">每月 <span>16</span> 号 · 免费域名发放</div>
+        <div class="sixteen-badge">✦ 今天发放</div>
+      </div>
+      <div class="today-banner">
+        ✦ 今天是免费域名发放日 ✦
+        <small>前往 Nodeloc 领取你的免费域名，数量有限，先到先得</small>
+      </div>
+      <p class="sixteen-desc">
+        Nodeloc 在每月 16 号开放免费域名注册，数量有限，先到先得。抓住机会，领取属于你的域名。
+      </p>
+
+      <!-- 优惠码 -->
+      <div class="promo-section">
+        <div class="promo-label"><span class="promo-dot"></span>本月优惠码</div>
+        <div class="promo-code-box" id="promoBox">
+          <span class="promo-loading" id="promoText">正在获取优惠码...</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px;transition:color 0.8s ease;">
+          <span>16号已经过去</span>
+          <span id="dayProgress">--%</span>
+        </div>
+        <div style="height:4px;background:var(--divider);border-radius:4px;overflow:hidden;transition:background 0.8s ease;">
+          <div id="dayProgressBar" style="height:100%;width:0%;background:var(--accent);border-radius:4px;transition:width 0.6s ease;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 16号专属：立即注册 ===== -->
+  <div class="section" data-show="16th">
+    <div class="section-label">// 加入</div>
+    <div class="card invite-card">
+      <div class="invite-title">今天就领取你的免费域名</div>
+      <p class="invite-desc">
+        每月 16 号是 Nodeloc 的免费域名发放日，使用上方优惠码注册即可免费获取。不要错过。
+      </p>
+      <a class="invite-btn" href="https://domain.nodeloc.com/register?ref=9c2c8584878ce162" target="_blank" rel="noopener">
+        立即注册
+        <svg viewBox="0 0 24 24"><path d="M16.004 9.414l-8.607 8.607-1.414-1.414L14.59 8H7.004V6h11v11h-2V9.414z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== 非16号：倒计时 ===== -->
+  <div class="section" data-show="not-16th">
+    <div class="section-label">// 域名领取倒计时</div>
+    <div class="card">
+      <div class="countdown" id="countdown"></div>
+      <div class="time-bar">
+        <span id="timeIcon"></span>
+        <span id="timeLabel"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 网站运行状态 -->
+  <div class="section">
+    <div class="section-label">// 状态</div>
+    <div class="uptime-card">
+      <div class="uptime-badge">
+        <div class="uptime-num" id="uptimeDays">--</div>
+        <div class="uptime-unit">天</div>
+      </div>
+      <div class="uptime-info">
+        <div class="uptime-title">网站已稳定运行</div>
+        <div class="uptime-pulse"><span class="live-dot"></span> 正常运行中</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 域名信息 -->
+  <div class="section">
+    <div class="section-label">// 关于</div>
+    <div class="card">
+      <div class="info-row">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 100-16 8 8 0 000 16zm1-9h3l-4 6v-4H9l4-6v4z"/></svg>
+        </div>
+        <div class="info-content">
+          <div class="info-label">域名服务</div>
+          <div class="info-value">由 <a href="https://domain.nodeloc.com" target="_blank" rel="noopener">Nodeloc.com</a> 提供</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95a15.65 15.65 0 00-1.38-3.56A8.03 8.03 0 0118.92 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.987 7.987 0 015.08 16zm2.95-8H5.08a7.987 7.987 0 014.33-3.56A15.65 15.65 0 008.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+        </div>
+        <div class="info-content">
+          <div class="info-label">时区</div>
+          <div class="info-value" id="tzDisplay">--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 近况 -->
+  <div class="section">
+    <div class="section-label">// 近况</div>
+    <div class="card" style="padding: 24px 28px;">
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">2026.06</div>
+          <div class="timeline-text">搭建了这个个人主页</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">持续进行中</div>
+          <div class="timeline-text">通过 Nodeloc 管理域名，每月16号领取免费域名</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">每月 16 号</div>
+          <div class="timeline-text">固定的免费域名发放日</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-line"></div>
+    <p>&copy; 2026 Uxnar &middot; <a href="https://domain.nodeloc.com" target="_blank" rel="noopener">Nodeloc.com</a></p>
+  </footer>
+</div>
+
+<script>
+  // ===== 主题 =====
+  function getThemeByTime() {
+    var h = new Date().getHours();
+    return (h >= 6 && h < 18) ? 'day' : 'night';
+  }
+  function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    updateAll();
+  }
+  function toggleTheme() {
+    var next = document.body.getAttribute('data-theme') === 'day' ? 'night' : 'day';
+    localStorage.setItem('uxnar-theme', next);
+    applyTheme(next);
+  }
+
+  // ===== 16号 / 非16号 显隐 =====
+  function updateVisibility() {
+    var is16th = new Date().getDate() === 16;
+    document.querySelectorAll('[data-show="16th"]').forEach(function(el) {
+      el.style.display = is16th ? '' : 'none';
+    });
+    document.querySelectorAll('[data-show="not-16th"]').forEach(function(el) {
+      el.style.display = is16th ? 'none' : '';
+    });
+  }
+
+  // ===== 运行天数 =====
+  function updateUptime() {
+    var el = document.getElementById('uptimeDays');
+    if (!el) return;
+    var start = new Date(2026, 5, 16);
+    var diff = new Date() - start;
+    el.textContent = Math.max(0, Math.floor(diff / 864e5));
+  }
+
+  // ===== 时区 =====
+  function updateTz() {
+    var el = document.getElementById('tzDisplay');
+    if (!el) return;
+    var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var off = new Date().getTimezoneOffset();
+    var s = off <= 0 ? '+' : '-';
+    var a = Math.abs(off);
+    el.textContent = tz + ' (UTC' + s + String(Math.floor(a/60)).padStart(2,'0') + ':' + String(a%60).padStart(2,'0') + ')';
+  }
+
+  // ===== 16号已经过去 =====
+  function updateDayProgress() {
+    var el = document.getElementById('dayProgress');
+    var bar = document.getElementById('dayProgressBar');
+    if (!el || !bar) return;
+    var now = new Date();
+    var pct = Math.round(((now.getHours() * 60 + now.getMinutes()) / 1440) * 100);
+    el.textContent = pct + '%';
+    bar.style.width = pct + '%';
+  }
+
+  // ===== 倒计时 =====
+  function updateCountdown() {
+    var el = document.getElementById('countdown');
+    if (!el) return;
+    var now = new Date();
+    var d = now.getDate();
+    var next;
+    if (d < 16) next = new Date(now.getFullYear(), now.getMonth(), 16);
+    else next = new Date(now.getFullYear(), now.getMonth() + 1, 16);
+    var diff = next - now;
+    var dd = Math.floor(diff / 864e5);
+    var hh = Math.floor((diff % 864e5) / 36e5);
+    var mm = Math.floor((diff % 36e5) / 6e4);
+    var ss = Math.floor((diff % 6e4) / 1e3);
+    el.innerHTML =
+      '<div class="countdown-unit"><div class="countdown-num">' + dd + '</div><div class="countdown-label">天</div></div>' +
+      '<div class="countdown-unit"><div class="countdown-num">' + String(hh).padStart(2,'0') + '</div><div class="countdown-label">时</div></div>' +
+      '<div class="countdown-unit"><div class="countdown-num">' + String(mm).padStart(2,'0') + '</div><div class="countdown-label">分</div></div>' +
+      '<div class="countdown-unit"><div class="countdown-num">' + String(ss).padStart(2,'0') + '</div><div class="countdown-label">秒</div></div>';
+  }
+
+  // ===== 时间显示 =====
+  function updateTimeDisplay() {
+    var now = new Date();
+    var h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0');
+    var icon = document.getElementById('timeIcon');
+    var label = document.getElementById('timeLabel');
+    if (!icon || !label) return;
+    var p, e;
+    if      (h>=5&&h<8)  {p='清晨';e='🌅'}
+    else if (h>=8&&h<12) {p='上午';e='☀️'}
+    else if (h>=12&&h<14){p='中午';e='🌤️'}
+    else if (h>=14&&h<18){p='下午';e='⛅'}
+    else if (h>=18&&h<21){p='傍晚';e='🌆'}
+    else if (h>=21||h<1) {p='夜晚';e='🌙'}
+    else                 {p='深夜';e='✨'}
+    var tn = document.body.getAttribute('data-theme') === 'day' ? '日间' : '夜间';
+    icon.textContent = e;
+    label.textContent = p + ' ' + h + ':' + m + ' · ' + tn + '模式';
+  }
+
+  // ===== 一言 =====
+  function fetchHitokoto() {
+    var textEl = document.getElementById('hitokotoText');
+    var srcEl = document.getElementById('hitokotoSource');
+    textEl.textContent = '加载中...';
+    srcEl.textContent = '';
+
+    var fallback = function() {
+      textEl.textContent = '把生活调成自己喜欢的频率，别人的声音不必都听。';
+      srcEl.textContent = '— 写给自己';
+    };
+
+    try {
+      fetch('https://v1.hitokoto.cn/')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          textEl.textContent = data.hitokoto || '';
+          var src = '';
+          if (data.from_who) src += data.from_who;
+          if (data.from) src += (src ? ' · ' : '') + data.from;
+          srcEl.textContent = src ? '— ' + src : '';
+        })
+        .catch(fallback);
+    } catch(e) {
+      fallback();
+    }
+  }
+
+  // ===== 优惠码提取 =====
+  var PROMO_API = 'https://www.nodeloc.com/t/51258.json';
+  var PROMO_PROXY = 'https://corsproxy.io/?url=';
+
+  var PROMO_KEYWORDS = ['优惠码', '兑换码', '激活码', '折扣码', '优惠券', 'code', 'Code', 'CODE'];
+
+  var PROMO_STOPWORDS = [
+    'html', 'http', 'https', 'url', 'css', 'js', 'json', 'api',
+    'get', 'post', 'put', 'delete', 'svg', 'div', 'span', 'img',
+    'src', 'alt', 'rel', 'href', 'class', 'style', 'type',
+    'auto', 'lazy', 'true', 'false', 'null', 'none', 'text',
+    'discourse', 'cooked', 'regular', 'nested', 'view',
+    'post', 'topic', 'reply', 'quote', 'share', 'edit',
+    'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+    'january', 'february', 'march', 'april', 'june', 'july',
+    'august', 'september', 'october', 'november', 'december',
+    'the', 'and', 'for', 'are', 'but', 'not', 'was', 'has', 'had',
+    'can', 'may', 'our', 'you', 'your', 'all', 'use', 'day',
+    'free', 'node', 'loc', 'nodeloc', 'domain', 'www',
+    'welcome', 'thanks', 'thank', 'hello', 'dear', 'everyone',
+    'about', 'more', 'some', 'with', 'from', 'this', 'that',
+    'will', 'each', 'user', 'name', 'find', 'code',
+    'start', 'end', 'time', 'date', 'open', 'make', 'just',
+    'also', 'only', 'when', 'what', 'have', 'been', 'being',
+    'good', 'best', 'new', 'old', 'like', 'need', 'want',
+    'every', 'month', 'year', '活动', '用户', '免费', '注册',
+    '域名', '二级', '福利', '感谢', '支持', '陪伴', '决定',
+    '开启', '每位', '使用', '合理', '严禁', '用于', '违规',
+    '滥用', '钓鱼', '收回', '封禁', '账号', '解释', '归',
+    '分享', '自由', '开放', '友好', '空间', '一直', '规则',
+    '时间', '对象', '内容', '方式', '当天', '访问', '温馨提示'
+  ];
+
+  function promoIsStopword(text) {
+    var lower = text.toLowerCase();
+    for (var i = 0; i < PROMO_STOPWORDS.length; i++) {
+      if (lower === PROMO_STOPWORDS[i] || lower.startsWith(PROMO_STOPWORDS[i])) return true;
+    }
+    return false;
+  }
+
+  function fetchPromoCode() {
+    var box = document.getElementById('promoBox');
+    var text = document.getElementById('promoText');
+    if (!box || !text) return;
+
+    text.textContent = '正在获取优惠码...';
+    text.className = 'promo-loading';
+
+    function tryFetch(url) {
+      return fetch(url).then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      });
+    }
+
+    // 先直连，失败走代理
+    tryFetch(PROMO_API).catch(function() {
+      return tryFetch(PROMO_PROXY + encodeURIComponent(PROMO_API));
+    }).then(function(data) {
+      var cooked = data.post_stream.posts[0].cooked;
+      var doc = new DOMParser().parseFromString(cooked, 'text/html');
+
+      var promoCode = '';
+      var context = '';
+
+      // 第一层：关键词 + strong/b/code
+      var allElements = doc.querySelectorAll('p, li, td, div, span, strong, b, code');
+      for (var i = 0; i < allElements.length; i++) {
+        var el = allElements[i];
+        var elText = el.textContent;
+        var hasKeyword = false;
+        for (var k = 0; k < PROMO_KEYWORDS.length; k++) {
+          if (elText.indexOf(PROMO_KEYWORDS[k]) !== -1) { hasKeyword = true; break; }
+        }
+        if (hasKeyword) {
+          var tags = el.querySelectorAll('strong, b, code');
+          for (var j = 0; j < tags.length; j++) {
+            var codeText = tags[j].textContent.trim();
+            if (codeText && codeText !== elText.trim() && codeText.length >= 3) {
+              promoCode = codeText;
+              context = elText.trim();
+              break;
+            }
+          }
+          if (promoCode) break;
+          if ((el.tagName === 'STRONG' || el.tagName === 'B' || el.tagName === 'CODE') && el.textContent.trim().length >= 3) {
+            var prev = el.parentElement ? el.parentElement.textContent : '';
+            var hasKw2 = false;
+            for (var k2 = 0; k2 < PROMO_KEYWORDS.length; k2++) {
+              if (prev.indexOf(PROMO_KEYWORDS[k2]) !== -1) { hasKw2 = true; break; }
+            }
+            if (hasKw2) {
+              promoCode = el.textContent.trim();
+              context = prev.trim();
+              break;
+            }
+          }
+        }
+      }
+
+      // 第二层：扫描格式化标签
+      if (!promoCode) {
+        var ftags = doc.querySelectorAll('strong, b, code');
+        for (var i2 = 0; i2 < ftags.length; i2++) {
+          var t = ftags[i2].textContent.trim();
+          if (/^[A-Za-z0-9]{4,20}$/.test(t) && !promoIsStopword(t)) {
+            promoCode = t;
+            break;
+          }
+        }
+      }
+
+      // 第三层：正则兜底
+      if (!promoCode) {
+        var allText = doc.body.textContent;
+        var matches = allText.match(/\b[A-Za-z0-9]{4,20}\b/g);
+        if (matches) {
+          for (var i3 = 0; i3 < matches.length; i3++) {
+            if (!promoIsStopword(matches[i3])) {
+              promoCode = matches[i3];
+              context = '（模糊匹配）';
+              break;
+            }
+          }
+        }
+      }
+
+      // 渲染结果
+      if (promoCode) {
+        box.innerHTML =
+          '<span class="promo-code-value" id="promoValue">' + promoCode + '</span>' +
+          '<button class="promo-copy-btn" onclick="copyPromo()">复制</button>';
+      } else {
+        box.innerHTML = '<span class="promo-error">暂未获取到优惠码，页面可能尚未更新</span>';
+      }
+
+    }).catch(function(err) {
+      box.innerHTML = '<span class="promo-error">获取失败：' + err.message + '</span>';
+    });
+  }
+
+  function copyPromo() {
+    var el = document.getElementById('promoValue');
+    if (!el) return;
+    var code = el.textContent;
+    var hint = document.querySelector('.promo-code-hint');
+    var btn = document.querySelector('.promo-copy-btn');
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+    } else {
+      var range = document.createRange();
+      range.selectNodeContents(el);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand('copy');
+    }
+
+    if (hint) hint.textContent = '已复制!';
+    if (btn) { btn.textContent = '✓'; }
+    setTimeout(function() {
+      if (hint) hint.textContent = '点击复制';
+      if (btn) { btn.textContent = '复制'; }
+    }, 1500);
+  }
+
+  // ===== 统一更新 =====
+  function updateAll() {
+    updateUptime();
+    updateTz();
+    updateVisibility();
+    updateDayProgress();
+    updateCountdown();
+    updateTimeDisplay();
+  }
+
+  // ===== 初始化 =====
+  var saved = localStorage.getItem('uxnar-theme');
+  applyTheme(saved || getThemeByTime());
+  fetchHitokoto();
+
+  // 只在16号加载优惠码
+  if (new Date().getDate() === 16) {
+    fetchPromoCode();
+  }
+
+  setInterval(function() {
+    updateCountdown();
+    updateTimeDisplay();
+    updateUptime();
+    updateDayProgress();
+    updateVisibility();
+  }, 1000);
+
+  setInterval(function() {
+    if (!localStorage.getItem('uxnar-theme')) return;
+    var h = new Date().getHours(), m = new Date().getMinutes();
+    if (h === 0 && m < 2) {
+      localStorage.removeItem('uxnar-theme');
+      applyTheme(getThemeByTime());
+    }
+  }, 60000);
+</script>
+</body>
+</html>
